@@ -9,6 +9,7 @@ Solver del cubo rubic utilizando opencv y kociemba
 08/02/2021: version 0.2.0 -- Mejoras al reconocimiento de cada cara. De momento detecta los 6 stickers por cara
                              falta deteccion de color. Ruido eliminado, el 90% de las veces se enfoca unicamente 
                              en los 6 stickers. 
+08/02/2021: version 0.2.1 -- Se implementa una version POO para mejor uso de estas funciones.
 """
 
 import cv2 as cv
