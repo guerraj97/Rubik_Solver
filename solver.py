@@ -64,4 +64,7 @@ class Rubiks():
                 cv.waitKey(1)
                 print("Escape presionado, cerrando...")
                 break
+            
+        cv.destroyAllWindows()
+        cv.waitKey(1)
 
