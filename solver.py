@@ -5,7 +5,7 @@ Created on Thu Jan 14 17:52:06 2021
 @author: joseguerra
 Solver del cubo rubic utilizando opencv y kociemba
 14/01/2021: version 0.0.1 -- Version inicial
-14/01/2021: version 0.1.0 -- El algoritmo es capaz de reconocer los 6 colores de cada cara.
+14/01/2021: version 0.1.0 -- El algoritmo es capaz de reconocer los 6 colores de cada cara. (version eliminada)
 08/02/2021: version 0.2.0 -- Mejoras al reconocimiento de cada cara. De momento detecta los 6 stickers por cara
                              falta deteccion de color. Ruido eliminado, el 90% de las veces se enfoca unicamente 
                              en los 6 stickers. 
