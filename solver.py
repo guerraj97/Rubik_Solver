@@ -47,14 +47,27 @@ class Rubiks():
             cnts = sorted(cnts, key=cv.contourArea, reverse=True)
             #cv.drawContours(image, cnts, -1, (0,0,255), thickness = 5)
             contour_list = [] #array que guarda los contornos circulares encontrados
+            colors = []
             for con in cnts:
                 approx = cv.approxPolyDP(con, 0.1*cv.arcLength(con, True), True) 
                 if (len(approx) == 4):
                     x,y,w,h = cv.boundingRect(con)
                     area = cv.contourArea(con)#Rectangle area
-                    print(area)
+                    
                     if w<25 and w > 15 and h<25 and h > 15 and area > 230:
                         cv.rectangle(image,(x,y),(x+w,y+h),(0,255,0),2)
+                        crop = image[y:y+h,x:x+w]
+                        height, width = crop.shape[:2]
+                        Color = crop[int(height/2),int(width/2)]
+                        #amarillo [1 192 203] [8 158 167]
+                        #rojo [0 23 146] [7  35 153]
+                        #azul [146 23 0] [136  36   3]
+                        #blanco [255 - - ] [-10]
+                        #naranja [12 107 255] [5 116 255]
+                        #verde 
+                        
+                        print("Este es el color", Color)
+                        cv.imshow("crop", crop)
                         contour_list.append(con)
                         
             cv.imshow("contornos", image)
