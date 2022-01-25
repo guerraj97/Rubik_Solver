@@ -64,7 +64,7 @@ class Rubiks():
                         #azul [146 23 0] [136  36   3]
                         #blanco [255 - - ] [-10]
                         #naranja [12 107 255] [5 116 255]
-                        #verde 
+                        #verde [36 100   0]
                         
                         print("Este es el color", Color)
                         cv.imshow("crop", crop)
