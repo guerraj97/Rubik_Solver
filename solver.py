@@ -43,7 +43,7 @@ class Rubiks():
             cv.imshow("dilatacion", img_dilation) #muestra la imagen
             
             r, t = cv.threshold(img_dilation, 200, 265, cv.THRESH_BINARY_INV)
-            _,cnts,h = cv.findContours(t, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
+            cnts,h = cv.findContours(t, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
             cnts = sorted(cnts, key=cv.contourArea, reverse=True)
             #cv.drawContours(image, cnts, -1, (0,0,255), thickness = 5)
             contour_list = [] #array que guarda los contornos circulares encontrados
