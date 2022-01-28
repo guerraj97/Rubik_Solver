@@ -1,5 +1,6 @@
 from solver import Rubiks
 
-cubo = Rubiks(0,130,130)
+cubo = Rubiks()
 
-cubo.Get_squares()
+#cubo.Get_squares()
+cubo.get_squares()
