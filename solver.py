@@ -10,6 +10,7 @@ Solver del cubo rubic utilizando opencv y kociemba
                              falta deteccion de color. Ruido eliminado, el 90% de las veces se enfoca unicamente 
                              en los 6 stickers. 
 08/02/2021: version 0.2.1 -- Se implementa una version POO para mejor uso de estas funciones.
+27/01/2022: version 0.3.0 -- Nueva funcion para detectar los colores, de momento detecta rojo, azul y amarillo.
 """
 
 import cv2 as cv
@@ -22,14 +23,26 @@ import numpy as np
 kernel = np.ones((5,5), np.uint8) 
 #font = cv.FONT_HERSHEY_COMPLEX
 
+#-------- para la deteccion de colores
+azulBajo = np.array([100,100,20],np.uint8)
+azulAlto = np.array([125,255,255],np.uint8)
+amarilloBajo = np.array([28,100,20],np.uint8)
+amarilloAlto = np.array([33,255,255],np.uint8)
+redBajo1 = np.array([0,100,20],np.uint8)
+redAlto1 = np.array([5,255,255],np.uint8)
+
+#redBajo2 = np.array([175,100,20],np.uint8)
+#redAlto2 = np.array([179,255,255],np.uint8)
+
 class Rubiks():
      def __init__(self,cam_num = 0, WIDTH = 120, HEIGHT = 120):
         self.cap = cv.VideoCapture(cam_num)
         self.cap.set(cv.CAP_PROP_FRAME_WIDTH, WIDTH)
         self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, HEIGHT)
         self.cam_num = cam_num
+        #self.image = 0
     
-     def Get_squares(self):
+     def Draw_squares_old_version(self):
         
         while True:
             is_ok, image = self.cap.read() #adquiero el frame del video
@@ -81,4 +94,38 @@ class Rubiks():
             
         cv.destroyAllWindows()
         cv.waitKey(1)
+        
+     def dibujar(self,mask,color,frame):
+         contornos,_ = cv.findContours(mask, cv.RETR_EXTERNAL,
+         cv.CHAIN_APPROX_SIMPLE)
+         for c in contornos:
+             area = cv.contourArea(c)
+             if area < 1200 and area > 600: 
+                 # M = cv.moments(c)
+                 # if (M["m00"]==0): M["m00"]=1
+                 # x = int(M["m10"]/M["m00"])
+                 # y = int(M['m01']/M['m00'])
+                 nuevoContorno = cv.convexHull(c)
+                 #cv.circle(frame,(x,y),7,(0,255,0),-1)
+                 #cv.putText(frame,'{},{}'.format(x,y),(x+10,y), font, 0.75,(0,255,0),1,cv.LINE_AA)
+                 cv.drawContours(frame, [nuevoContorno], 0, color, 3)
+                 
+     def get_squares(self):
+         while True:
+             is_ok, frame = self.cap.read() #adquiero el frame del video
+             frameHSV = cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+             frameHSV = cv.GaussianBlur(frameHSV, (11, 11), 0) #difuminado, para quitar detalles extras, paso 2
+             maskAzul = cv.inRange(frameHSV,azulBajo,azulAlto)
+             maskAmarillo = cv.inRange(frameHSV,amarilloBajo,amarilloAlto)
+             maskRed = cv.inRange(frameHSV,redBajo1,redAlto1)
+             #maskRed2 = cv.inRange(frameHSV,redBajo2,redAlto2)
+             #maskRed = cv.add(maskRed1,maskRed2)
+             self.dibujar(maskAzul,(255,0,0),frame)
+             self.dibujar(maskAmarillo,(0,255,255),frame)
+             self.dibujar(maskRed,(0,0,255),frame)
+             cv.imshow('frame',frame)
+             if cv.waitKey(1) & 0xFF == ord('s'):
+               break
 
+
+font = cv.FONT_HERSHEY_SIMPLEX
