@@ -11,6 +11,8 @@ Solver del cubo rubic utilizando opencv y kociemba
                              en los 6 stickers. 
 08/02/2021: version 0.2.1 -- Se implementa una version POO para mejor uso de estas funciones.
 27/01/2022: version 0.3.0 -- Nueva funcion para detectar los colores, de momento detecta rojo, azul y amarillo.
+27/01/2022: version 0.3.1 -- Recorte de imagen para centrarse en una ROI y detectar unicamente los cuadros del cubo.
+                             No hay cambios en los colores que detecta. 
 """
 
 import cv2 as cv
@@ -21,7 +23,7 @@ import numpy as np
 # cap.set(cv.CAP_PROP_FRAME_HEIGHT,130)
 
 kernel = np.ones((5,5), np.uint8) 
-#font = cv.FONT_HERSHEY_COMPLEX
+font = cv.FONT_HERSHEY_COMPLEX
 
 #-------- para la deteccion de colores
 azulBajo = np.array([100,100,20],np.uint8)
@@ -96,34 +98,51 @@ class Rubiks():
         cv.waitKey(1)
         
      def dibujar(self,mask,color,frame):
-         contornos,_ = cv.findContours(mask, cv.RETR_EXTERNAL,
-         cv.CHAIN_APPROX_SIMPLE)
+         contornos,_ = cv.findContours(mask, cv.RETR_LIST,
+         cv.CHAIN_APPROX_NONE)
+         #cv.rectangle(imagen,(300,80),(450,230),(0,0,0),-1)
          for c in contornos:
-             area = cv.contourArea(c)
-             if area < 1200 and area > 600: 
-                 # M = cv.moments(c)
-                 # if (M["m00"]==0): M["m00"]=1
-                 # x = int(M["m10"]/M["m00"])
-                 # y = int(M['m01']/M['m00'])
-                 nuevoContorno = cv.convexHull(c)
-                 #cv.circle(frame,(x,y),7,(0,255,0),-1)
-                 #cv.putText(frame,'{},{}'.format(x,y),(x+10,y), font, 0.75,(0,255,0),1,cv.LINE_AA)
-                 cv.drawContours(frame, [nuevoContorno], 0, color, 3)
-                 
+             approx = cv.approxPolyDP(c, 0.1*cv.arcLength(c, True), True) 
+             if (len(approx) == 4):
+                 area = cv.contourArea(c)
+                 if area > 500: 
+                     M = cv.moments(c)
+                     if (M["m00"]==0): M["m00"]=1
+                     #x = int(M["m10"]/M["m00"])
+                     #y = int(M['m01']/M['m00'])
+                     nuevoContorno = cv.convexHull(c)
+                     #cv.circle(frame,(x,y),7,(0,255,0),-1)
+                     #cv.putText(frame,'{},{}'.format(x,y),(x+10,y), font, 0.75,(0,255,0),1,cv.LINE_AA)
+                     cv.drawContours(frame, [nuevoContorno], 0, color, 3)
+         return frame
+     
      def get_squares(self):
          while True:
-             is_ok, frame = self.cap.read() #adquiero el frame del video
-             frameHSV = cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+             is_ok, photo = self.cap.read() #adquiero el frame del video
+             cv.rectangle(photo,(50,80),(200,230),(0,255,0),1)
+             ref_point = [(50,80)]
+             ref_point.append((200,230))
+             cropped_image = photo[ref_point[0][1]:ref_point[1][1], ref_point[0][0]:
+                                                      ref_point[1][0]]
+             frameHSV = cv.cvtColor(cropped_image,cv.COLOR_BGR2HSV)
              frameHSV = cv.GaussianBlur(frameHSV, (11, 11), 0) #difuminado, para quitar detalles extras, paso 2
              maskAzul = cv.inRange(frameHSV,azulBajo,azulAlto)
              maskAmarillo = cv.inRange(frameHSV,amarilloBajo,amarilloAlto)
              maskRed = cv.inRange(frameHSV,redBajo1,redAlto1)
-             #maskRed2 = cv.inRange(frameHSV,redBajo2,redAlto2)
-             #maskRed = cv.add(maskRed1,maskRed2)
-             self.dibujar(maskAzul,(255,0,0),frame)
-             self.dibujar(maskAmarillo,(0,255,255),frame)
-             self.dibujar(maskRed,(0,0,255),frame)
-             cv.imshow('frame',frame)
+             #Dibujando un rectangulo
+
+             if cv.waitKey(1) & 0xFF == ord('c'):
+                 cv.imshow('crop_previo',cropped_image)
+                #maskRed2 = cv.inRange(frameHSV,redBajo2,redAlto2)
+                #maskRed = cv.add(maskRed1,maskRed2)
+                 _ = self.dibujar(maskAzul,(255,0,0),cropped_image)
+                 _ = self.dibujar(maskAmarillo,(0,255,255),cropped_image)
+                 frame_mostrar = self.dibujar(maskRed,(0,0,255),cropped_image)
+                 cv.imshow('crop',frame_mostrar)
+                 
+             cv.imshow('frame',photo)
+                 
+             
              if cv.waitKey(1) & 0xFF == ord('s'):
                break
 
